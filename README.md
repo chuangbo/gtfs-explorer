@@ -15,7 +15,7 @@ Disclaimer: It's a EXPERIMENTAL tool for explore GTFS data. It's not a complete 
 - Friendly UI
 - GTFS data parser, from GTFS to Django's dump data format
 
-## Install
+## Installation
 
 ### Dependencies
 - PostGIS 2
@@ -24,7 +24,7 @@ Disclaimer: It's a EXPERIMENTAL tool for explore GTFS data. It's not a complete 
 
 ### Prepare Database and Virtualenv
 
-#### on a Mac
+#### on a lovely Mac
 
 It's very simple.
 
