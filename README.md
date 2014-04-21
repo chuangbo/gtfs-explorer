@@ -20,7 +20,57 @@ Disclaimer: It's a EXPERIMENTAL tool for explore GTFS data. It's not a complete 
 - Django 1.6 (virtualenv is highly recommended.)
 - GTFS data (Auckland's data is included)
 
+### Prepare Database and Virtualenv
 
+#### on a Mac
+
+It's very simple.
+
+1. Download Postgres.app, it also contains PostGIS, so sweet.
+2. Install `GDAL Complete` from http://www.kyngchaos.com/software/frameworks
+
+And then,
+
+```sh
+$ virtualenv env
+$ . env/bin/activate
+$ pip install -r requirements.txt
+$ # Done!
+```
+
+#### Ubuntu server, precise 12.04 LTS
+
+First, prepare the database.
+
+```sh
+$ # add PostGIS Apt source, you might need sudo if you are not root
+$ echo 'deb http://apt.postgresql.org/pub/repos/apt/ precise-pgdg main' > /etc/apt/sources.list.d/pgdg.list
+$ wget --quiet -O - http://apt.postgresql.org/pub/repos/apt/ACCC4CF8.asc | sudo apt-key add -
+$ apt-get update
+$ apt-get install postgresql-9.3 postgresql-9.3-postgis
+$ su - postgres
+$ createuser --createdb -P gtfs # input password here, twice
+$ createdb -O gtfs gtfs
+$ psql gtfs
+gtfs=# CREATE EXTENSION postgis;
+gtfs=# \q
+```
+
+And, install gdal and PostgreSQL-dev for compiling python's library `psycopg2`
+
+```sh
+$ apt-get install binutils libproj-dev gdal-bin
+$ apt-get install libpq-dev
+```
+
+And the same here,
+
+```sh
+$ virtualenv env
+$ . env/bin/activate
+$ pip install -r requirements.txt
+$ # Done!
+```
 
 ### How to import initial data of GTFS of Auckland City
 
@@ -28,9 +78,9 @@ First of all, you sould prepare the database named `gtfs` by default of PostgreS
 
 *You can find this GTFS data on http://www.gtfs-data-exchange.com/agency/auckland-transport/.*
 
-```shell
+```sh
 $ wget http://gtfs.s3.amazonaws.com/auckland-transport_20140416_0216.zip
-$ unzip auckland-transport_20140416_0216.zip
+$ unzip auckland-transport_20140416_0216.zip -d Feed_2014-03-12
 $ python explorer/data/gtfs2django_data.py Feed_2014-03-12 > init_data.json
 $ ./manage.py syncdb # create the table
 $ ./manage.py loaddata init_data.json
