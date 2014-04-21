@@ -1,0 +1,57 @@
+
+html, body, #map {
+    height: 100%;
+}
+
+.leaflet-marker-icon.active path{
+    fill: blue;
+}
+
+.leaflet-marker-icon:hover path {
+    fill: red;
+}
+
+.popup .title {
+    font-weight: bold;
+}
+
+.control-close-btn {
+    box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+    background: #fff;
+    border-radius: 5px;
+}
+    .control-close-btn a {
+        display: block;
+        padding: 8px 16px;
+        text-align: center;
+        text-decoration: none;
+        color: black;
+        border-radius: inherit;
+        font-size: 16px;
+    }
+    .control-close-btn a:hover {
+        background-color: #f4f4f4;
+    }
+
+.route_tags {
+    list-style-type: none;
+    padding-left: 0;
+    margin: 0;
+}
+    .route_tags .route_tag {
+        margin: 3px 2px;
+        display: inline-block;
+        border: 1px solid #ccc;
+    }
+
+    .route_tags .route_tag a {
+        display: block;
+        padding: 2px 4px;
+        width: 100%;
+        height: 100%;
+        color: inherit;
+        text-decoration: none;
+    }
+    .route_tags .route_tag a:hover {
+        text-decoration: none;
+    }
