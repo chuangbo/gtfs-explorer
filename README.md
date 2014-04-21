@@ -2,6 +2,8 @@
 
 Disclaimer: It's a EXPERIMENTAL tool for explore GTFS data. It's not a complete production, more like sort of notes of me on learning GTFS.
 
+![Screen Shot](https://raw.github.com/chuangbo/gtfs-explorer/master/ScreenShot.png)
+
 ### What is GTFS?
 [GTFS](https://developers.google.com/transit/gtfs/) = General Transit Feed Specification
 
