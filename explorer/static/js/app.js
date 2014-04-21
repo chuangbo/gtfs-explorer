@@ -137,6 +137,10 @@
       }
       // replace the route without trigger the router.
       this.router.navigate(new_route, {replace: true});
+      // send to Google Analytics
+      if (_.isFunction(window.ga)) {
+        ga('send', 'pageview', new_route);
+      }
       // update bounds model
       this.close_route_bounds_model.set(this._getRouteBounds());
     },
@@ -320,6 +324,8 @@
       });
       this.map.router = this;
 
+      //track every route change as a page view in google analytics
+      this.bind('route', this.trackPageview);
     },
 
     redirect: function () {
@@ -337,6 +343,19 @@
 
     route_view: function (route_short_name, lat, lng, zoom) {
       this.map.routeView(route_short_name, lat, lng, zoom);
+    },
+
+    trackPageview: function () {
+      var url = Backbone.history.getFragment();
+
+      //prepend slash
+      if (!/^\//.test(url) && url != "") {
+        url = "/" + url;
+      }
+
+      if (_.isFunction(window.ga)) {
+        ga('send', 'pageview', url);
+      }
     }
 
   });
