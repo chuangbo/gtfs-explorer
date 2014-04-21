@@ -138,9 +138,7 @@
       // replace the route without trigger the router.
       this.router.navigate(new_route, {replace: true});
       // send to Google Analytics
-      if (_.isFunction(window.ga)) {
-        ga('send', 'pageview', new_route);
-      }
+      this.router.trackPageview();
       // update bounds model
       this.close_route_bounds_model.set(this._getRouteBounds());
     },
@@ -156,6 +154,7 @@
     onMapClick: function (map) {
       if (this.view_type == 'stops') {
         this.router.navigate(this._getRouteBoundsStr());
+        this.router.trackPageview();
       }
     },
 
