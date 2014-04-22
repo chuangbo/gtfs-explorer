@@ -34,7 +34,7 @@
   'use strict';
 
   var Features = Backbone.Leaflet.GeoCollection.extend({
-    url: '/features.geojson'
+    url: '/api/features.geojson'
   });
 
   var StopInfoPopupView = Backbone.View.extend({
@@ -190,7 +190,7 @@
       // add progress bar
       NProgress.start();
       $.ajax({
-        url: '/stop_routes.json',
+        url: '/api/stop_routes.json',
         action: 'get',
         data: {stop_code: stop_code}
       }).success(function (json) {
