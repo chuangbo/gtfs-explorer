@@ -119,6 +119,10 @@
       this.close_route_bounds_model = new BoundsModel();
       this.close_btn_view = new RouterCloseBtnView({model: this.close_route_bounds_model});
       this.close_btn_view.btn.addTo(this.map);
+
+      // nprogress
+      this.listenTo(this.collection, 'request', NProgress.start);
+      this.listenTo(this.collection, 'reset', NProgress.done);
     },
 
     // set Url to current view
@@ -183,11 +187,15 @@
       this.map.setView([lat, lng], zoom);
 
       // load the `stop` information for routes data
+      // add progress bar
+      NProgress.start();
       $.ajax({
         url: '/stop_routes.json',
         action: 'get',
         data: {stop_code: stop_code}
       }).success(function (json) {
+        // progress bar end
+        NProgress.done();
         $this.stopPopup.model.set(json);
         $this.stopPopup.popup.openOn($this.map);
       });
