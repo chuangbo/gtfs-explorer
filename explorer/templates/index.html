@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="/static/css/normalize.css">
   <link rel="stylesheet" href="/static/js/libs/leaflet-0.7.2.css">
   <link rel="stylesheet" href="/static/js/libs/nprogress-0.1.2.css">
+  <link href='http://fonts.googleapis.com/css?family=Roboto:400,300' rel='stylesheet' type='text/css'>
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
@@ -23,16 +24,20 @@
       <div class="title"><%= name %></div>
       <small><%= code %></small>
       <ul class="route_tags">
-        <% _.each(routes, function(route) { %>
-          <li
-            class="route_tag"
-            style="background-color: #<%= route.color %>; color: #<%= route.text_color %>"
-            title="(<%= route.short_name %>) <%= route.long_name %>">
-            <a data-toggle="route" href="/route/<%= route.short_name %>">
-              <%= route.short_name %>
-            </a>
-          </li>
-        <% }); %>
+        <% if (routes.length) { %>
+          <% _.each(routes, function(route) { %>
+            <li
+              class="route_tag"
+              style="background-color: #<%= route.color %>; color: #<%= route.text_color %>"
+              title="(<%= route.short_name %>) <%= route.long_name %>">
+              <a data-toggle="route" href="/route/<%= route.short_name %>">
+                <%= route.short_name %>
+              </a>
+            </li>
+          <% }); %>
+        <% } else { %>
+          No data covered currently
+        <% } %>
       </ul>
     </div>
   </script>
@@ -47,9 +52,31 @@
   <script type="text/template" id="route-close-template">
     <div class="control-close-btn">
       <a data-toggle="route" href="/@<%= lat %>,<%= lng %>,<%= zoom %>">
+        <img class="back-icon" src="/static/img/back.svg" alt="back"/>
         Close route view
       </a>
     </div>
+  </script>
+
+  <script type="text/template" id="search-view-template">
+    <div class="search-wrapper">
+      <input type="search" placeholder="Search" name="q"/>
+      <ul class="suggestions-wrapper"></ul>
+    </div>
+  </script>
+
+  <script type="text/template" id="search-suggestion-view-template">
+    <% if (type == 'stop') { %>
+      <a data-toggle="route" href="/stop/<%= code %>">
+        <img class="suggestion-icon" src="/static/img/map.svg"></img>
+        (<%= code %>) <%= name %>
+      </a>
+    <% } else if (type == 'route') { %>
+      <a data-toggle="route" href="/route/<%= short_name %>">
+        <img class="suggestion-icon" src="/static/img/NPS_bus_stop-gray.svg"></img>
+        (<%= short_name %>) <%= long_name %>
+      </a>
+    <% } %>
   </script>
 
   <script src="/static/js/libs/jquery-1.11.0.min.js"></script>

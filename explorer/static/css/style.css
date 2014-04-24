@@ -1,6 +1,9 @@
 
 html, body, #map {
     height: 100%;
+    /* Use a lighter font, so set default weight to light */
+    font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 300;
 }
 
 .leaflet-marker-icon.active path{
@@ -12,17 +15,20 @@ html, body, #map {
 }
 
 .popup .title {
-    font-weight: bold;
+    font-weight: 400;
 }
 
 .control-close-btn {
-    box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+    -webkit-box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    -moz-box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
     background: #fff;
-    border-radius: 5px;
+    border-radius: 2px;
+    margin-left: 20px;
 }
     .control-close-btn a {
         display: block;
-        padding: 8px 16px;
+        padding: 3px 15px;
         text-align: center;
         text-decoration: none;
         color: black;
@@ -31,6 +37,11 @@ html, body, #map {
     }
     .control-close-btn a:hover {
         background-color: #f4f4f4;
+    }
+    .control-close-btn .back-icon {
+        width: 18px;
+        height: 18px;
+        vertical-align: middle;
     }
 
 .route_tags {
@@ -42,6 +53,7 @@ html, body, #map {
         margin: 3px 2px;
         display: inline-block;
         border: 1px solid #ccc;
+        border-radius: 2px;
     }
 
     .route_tags .route_tag a {
@@ -55,3 +67,60 @@ html, body, #map {
     .route_tags .route_tag a:hover {
         text-decoration: none;
     }
+
+.search-wrapper {
+    margin-top: 5px;
+    margin-left: 20px;
+}
+    .search-wrapper input[type="search"] {
+        box-sizing: border-box;
+        width: 250px;
+        height: 32px;
+        padding: 3px 15px;
+        font-size: 14px;
+        font-weight: 300;
+
+        background-color: #fff;
+        border: 1px solid transparent;
+        border-radius: 2px;
+
+        -webkit-box-shadow: 0 2px 6px rgba(0,0,0,0.3),0 4px 15px -5px rgba(0,0,0,0.3);
+        -moz-box-shadow: 0 2px 6px rgba(0,0,0,0.3),0 4px 15px -5px rgba(0,0,0,0.3);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3),0 4px 15px -5px rgba(0,0,0,0.3);
+    }
+        .search-wrapper input[type="search"]:focus {
+            outline: none;
+
+            border: 1px solid dodgerblue;
+        }
+
+    .search-wrapper .suggestions-wrapper {
+        padding-left: 0;
+        list-style: none;
+        background-color: #fff;
+
+        margin-top: 5px;
+
+        border-radius: 2px;
+        -webkit-box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        -moz-box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+        .search-wrapper .suggestions-wrapper .search-suggestion {
+            border-top: 1px solid #d9d9d9;
+        }
+        .search-wrapper .suggestions-wrapper .search-suggestion a {
+            display: block;
+            padding: 6px 15px;
+            font-size: 14px;
+            text-decoration: none;
+            color: #000;
+        }
+           .search-wrapper .suggestions-wrapper .search-suggestion a:hover {
+               background-color: #fafafa;
+           }
+        .search-wrapper .suggestions-wrapper .suggestion-icon {
+            width: 18px;
+            height: 18px;
+            vertical-align: middle;
+        }

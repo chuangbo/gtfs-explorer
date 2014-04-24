@@ -3,32 +3,34 @@
 // FIXME: drop dependency of Backbone.Leaflet, it has many bug and hard to find out
 
 /* Single-Page-App, using Backbone, Leaflet and Backbone.Leaflet 3rd-party extension
-  Backbone.Router to manage url
-  Backbone.Leaflet to manage Leaflet's `layer` as a Backbone Collection
+ Backbone.Router to manage url
+ Backbone.Leaflet to manage Leaflet's `layer` as a Backbone Collection
  */
 
 // Avoid `console` errors in browsers that lack a console.
-(function() {
-    var method;
-    var noop = function () {};
-    var methods = [
-        'assert', 'clear', 'count', 'debug', 'dir', 'dirxml', 'error',
-        'exception', 'group', 'groupCollapsed', 'groupEnd', 'info', 'log',
-        'markTimeline', 'profile', 'profileEnd', 'table', 'time', 'timeEnd',
-        'timeStamp', 'trace', 'warn'
-    ];
-    var length = methods.length;
-    var console = (window.console = window.console || {});
+(function () {
+  var method;
+  var noop = function () {
+  };
+  var methods = [
+    'assert', 'clear', 'count', 'debug', 'dir', 'dirxml', 'error',
+    'exception', 'group', 'groupCollapsed', 'groupEnd', 'info', 'log',
+    'markTimeline', 'profile', 'profileEnd', 'table', 'time', 'timeEnd',
+    'timeStamp', 'trace', 'warn'
+  ];
+  var length = methods.length;
+  var console = (window.console = window.console || {});
 
-    while (length--) {
-        method = methods[length];
+  while (length--) {
+    method = methods[length];
 
-        // Only stub undefined methods.
-        if (!console[method]) {
-            console[method] = noop;
-        }
+    // Only stub undefined methods.
+    if (!console[method]) {
+      console[method] = noop;
     }
+  }
 }());
+
 
 (function (Backbone, _, L) {
   'use strict';
@@ -63,6 +65,7 @@
     }
   });
 
+
   // A model contains bounds and zoom, useful for listen to map changing
   var BoundsModel = Backbone.Model.extend({
     defaults: {
@@ -72,6 +75,7 @@
     }
   });
 
+
   // A Leaflet control to close the route view, exit to stops view
   var RouterCloseBtnView = Backbone.View.extend({
     template: _.template($('#route-close-template').html()),
@@ -79,11 +83,11 @@
     initialize: function () {
       this.listenTo(this.model, "change", this.render);
 
-      this.btn = L.control();
+      this.control = L.control({position: 'topleft'});
 
       var $this = this;
 
-      this.btn.onAdd = function (map) {
+      this.control.onAdd = function (map) {
         return $this.el;
       };
     },
@@ -96,6 +100,96 @@
         this.$el.show();
       } else {
         this.$el.hide();
+      }
+    }
+  });
+
+  // View of one 
+  var SearchSuggestionView = Backbone.View.extend({
+    template: _.template($('#search-suggestion-view-template').html()),
+    tagName: 'li',
+    className: 'search-suggestion',
+    initialize: function () {
+      this.listenTo(this.model, 'remove', this.remove);
+    },
+    render: function () {
+      this.$el.html(this.template(this.model.toJSON()));
+      return this;
+    }
+  });
+
+  var SearchSuggestions = Backbone.Collection.extend({
+    url: '/api/search.json'
+  });
+
+  // provide a Backbone View to search and display suggestions
+  var SearchView = Backbone.View.extend({
+    template: _.template($('#search-view-template').html()),
+
+    events: {
+      'mouseover input': "show",
+      'focus input': "show",
+      'keyup input': "search",
+      // prevent all map zooming and moving event
+      // do not prevent single click, it will defer data-toggle=route
+      'dblclick': 'doNothing',
+      'mousemove': 'doNothing',
+      'mousewheel': 'doNothing',
+      // hack on single click to trigger route
+      'click': 'clickHack'
+    },
+
+    initialize: function () {
+      this.suggestions = new SearchSuggestions();
+
+      this.listenTo(this.suggestions, 'add', this.addOne);
+
+      // delay search
+      this.search = _.debounce(this.search, 400);
+
+      // just need to render once
+      this.$el.html(this.template());
+      this.$list = this.$('.suggestions-wrapper');
+
+      // Leaflet control api
+      this.control = L.control({position: 'topleft', layers: null});
+      var $this = this;
+      this.control.onAdd = function (map) {
+        return $this.el;
+      };
+    },
+
+    // do search
+    search: function () {
+      var q = this.$('input').val();
+      if (q) {
+        this.suggestions.fetch({data: {q: q}});
+      }
+    },
+
+    // render suggestion and append into dom
+    addOne: function (suggestion) {
+      var view = new SearchSuggestionView({ model: suggestion });
+      this.$list.append(view.render().el);
+    },
+
+    hide: function () {
+      this.$list.hide();
+    },
+
+    show: function () {
+      this.$list.show();
+    },
+
+    // prevent all map zooming or moving event
+    doNothing: function (e) {
+      e.stopPropagation();
+    },
+
+    // HACK: single click should trigger route event. Need review here.
+    clickHack: function (e) {
+      if (!$(e.target).closest('[data-toggle="route"]').length) {
+        e.stopPropagation();
       }
     }
   });
@@ -116,13 +210,27 @@
       this._ensureMap();
       this.stopPopup = new StopInfoPopupView();
       this.view_type = 'stops';
+
+      // search view come first
+      this.search_view = new SearchView();
+      this.search_view.control.addTo(this.map);
+
+      // a close button exit from route view to normal stops view
       this.close_route_bounds_model = new BoundsModel();
       this.close_btn_view = new RouterCloseBtnView({model: this.close_route_bounds_model});
-      this.close_btn_view.btn.addTo(this.map);
+      this.close_btn_view.control.addTo(this.map);
 
-      // nprogress
+      // move default zoom control position to bottom right, cause we have wheel
+      new L.Control.Zoom({ position: 'bottomright' }).addTo(this.map);
+
+      // nprogress, the progress bar on the top of the page
       this.listenTo(this.collection, 'request', NProgress.start);
       this.listenTo(this.collection, 'reset', NProgress.done);
+
+      // Used for map.setView
+      this.map_animation_options = {
+        pan: {animate: true, duration: 0.5, easeLinearity: 0.25},
+        zoom: {animate: true}};
     },
 
     // set Url to current view
@@ -147,6 +255,9 @@
       this.close_route_bounds_model.set(this._getRouteBounds());
     },
 
+    // display all stops
+    // TODO: needs more details on switch two views,
+    // switch from route to stops did not work fine.
     stopsView: function (lat, lng, zoom) {
       this.view_type = 'stops';
       this._load_stops();
@@ -160,6 +271,8 @@
         this.router.navigate(this._getRouteBoundsStr());
         this.router.trackPageview();
       }
+      // trigger a event for other view
+      this.search_view.hide();
     },
 
     // Open the popup window on click.
@@ -184,7 +297,9 @@
     // Display a popup on a `stop`.
     stopView: function (stop_code, lat, lng, zoom) {
       var $this = this;
-      this.map.setView([lat, lng], zoom);
+      if (lat && lng && zoom) {
+        this.map.setView([lat, lng], zoom);
+      }
 
       // load the `stop` information for routes data
       // add progress bar
@@ -196,8 +311,23 @@
       }).success(function (json) {
         // progress bar end
         NProgress.done();
+
+        // delay popup until zoom animation finished, no delay on click
+        var popup_delay = 0;
+        // zoom to proper view when no latlng specific in url
+        if (!/@/.test(window.location.pathname)) {
+          $this.map.setView([json.point[1], json.point[0]], 15,
+            $this.map_animation_options);
+
+          // delay popup until zoom animation finished
+          popup_delay = 600;
+        }
+
         $this.stopPopup.model.set(json);
-        $this.stopPopup.popup.openOn($this.map);
+
+        setTimeout(function(){
+          $this.stopPopup.popup.openOn($this.map);
+        }, popup_delay)
       });
     },
 
@@ -308,6 +438,7 @@
       // naked map without any popup
       "@:lat,:lng,:zoom": "naked_map",
       // with a stop info popup
+      "stop/:stop_code": "stop_view",
       "stop/:stop_code/@:lat,:lng,:zoom": "stop_view",
       // show one route and stops on it
       "route/:route_short_name": "route_view",
@@ -326,7 +457,8 @@
           // set default view to Auckland Central, cause we only support just
           // one city right now.
           center: [-36.849285, 174.7671101],
-          zoom: 15
+          zoom: 15,
+          zoomControl: false
         }
       });
       this.map.router = this;

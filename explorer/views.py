@@ -2,6 +2,8 @@ import json
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.contrib.gis.geos import Polygon
+from haystack.query import SearchQuerySet
+from haystack.utils import Highlighter
 
 from .models import Stop, Route
 from . import utils
@@ -85,9 +87,9 @@ def stop_routes_json(request):
             "point": [174.77325, -36.847187],
             "routes": [
                 {
-                    "color": "00F0FF",
                     "long_name": "Glen Innes To Britomart Via Grand Dr ...",
                     "short_name": "635",
+                    "color": "00F0FF",
                     "text_color": "000000"
                 },
                 ...
@@ -152,4 +154,68 @@ def route_geojson(request):
 
     geojson = utils.create_route_geojson(route, stops)
     return HttpResponse(json.dumps(geojson),
+                        content_type="application/json")
+
+
+def search(request):
+    """View used by the map javascript to fetch json for searching stops,
+    route with code or name.
+
+    This view receives a parameters via GET request and returns a json
+    response.
+
+    TODO: rise route's score, or return route first or more
+
+    Params:
+        q: question for search, like 974, Queen St, and so on.
+
+    Return: [
+        {
+            "type": "stop",
+            "code": "7179",
+            "name": "69 Beach Rd",
+            "highlighted": "<span class=\"highlighted\">69</span> Beach Rd"
+        },
+        {
+            "type": "route",
+            "long_name": "Glen Innes To Britomart Via Grand Dr ...",
+            "short_name": "635",
+            "color": "00F0FF",
+            "text_color": "000000",
+            "highlighted": "<span class=\"highlighted\">69</span> ..."
+        }
+    ]
+    """
+    q = request.GET.get('q', '')
+
+    if not q:
+        return HttpResponseBadRequest(json.dumps({'error': 'Invalid query'}),
+                                      content_type="application/json")
+
+    s = SearchQuerySet()
+    # highlight = Highlighter(q)
+
+    sqs = s.filter(content=q)[:5]
+
+    suggestions = []
+
+    for result in sqs:
+        if result.model is Stop:
+            suggestions.append({
+                "type": "stop",
+                "code": result.object.code,
+                "name": result.object.name,
+                # "highlighted": highlight.highlight(result.text),
+            })
+        elif result.model is Route:
+            suggestions.append({
+                "type": "route",
+                "long_name": result.object.long_name,
+                "short_name": result.object.short_name,
+                # "color": result.object.color,
+                # "text_color": result.object.text_color,
+                # "highlighted": highlight.highlight(result.text),
+            })
+
+    return HttpResponse(json.dumps(suggestions),
                         content_type="application/json")
