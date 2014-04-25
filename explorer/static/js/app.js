@@ -162,9 +162,7 @@
     // do search
     search: function () {
       var q = this.$('input').val();
-      if (q) {
-        this.suggestions.fetch({data: {q: q}});
-      }
+      this.suggestions.fetch({data: {q: q}});
     },
 
     // render suggestion and append into dom
