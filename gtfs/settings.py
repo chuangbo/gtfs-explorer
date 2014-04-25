@@ -89,7 +89,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 # In production mode, this folder needs to be create at user `nobody` can access
-# and then link to here first, like /var/hosts/gtfs/static_root
+# and then link to here first, like /var/hosts/gtfs
 STATIC_ROOT = './static_root'
 
 # Heystack for search, Whoosh is a index engine write by python as a backend
