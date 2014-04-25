@@ -162,7 +162,12 @@
     // do search
     search: function () {
       var q = this.$('input').val();
-      this.suggestions.fetch({data: {q: q}});
+      if (q) {
+        this.suggestions.fetch({data: {q: q}});
+      } else {
+        // empty the list and trigger remove of each model
+        this.suggestions.set()
+      }
     },
 
     // render suggestion and append into dom
