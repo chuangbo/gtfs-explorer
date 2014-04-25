@@ -2,7 +2,9 @@
 
 Disclaimer: It's a EXPERIMENTAL tool for explore GTFS data. It's not a complete production, more like sort of notes of me on learning GTFS.
 
-![Screen Shot](https://raw.github.com/chuangbo/gtfs-explorer/master/ScreenShot.png)
+![GTFS Explorer Stops View](https://github.com/chuangbo/gtfs-explorer/raw/master/screenshoot-stops.png)
+
+![GTFS Explorer Route View](https://github.com/chuangbo/gtfs-explorer/raw/master/screenshoot-route.png)
 
 ### What is GTFS?
 [GTFS](https://developers.google.com/transit/gtfs/) = General Transit Feed Specification
@@ -86,6 +88,7 @@ $ unzip auckland-transport_20140416_0216.zip -d Feed_2014-03-12
 $ python explorer/data/gtfs2django_data.py Feed_2014-03-12 > init_data.json
 $ ./manage.py syncdb # create the table
 $ ./manage.py loaddata init_data.json
+$ ./manage.py update_index # create the search indexes
 $ # Done!
 ```
 
