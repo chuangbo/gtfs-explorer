@@ -39,6 +39,8 @@ INSTALLED_APPS = (
     'django.contrib.gis',
     # haystack is for search
     'haystack',
+    # Compresses linked and inline JavaScript or CSS into a single cached file
+    'compressor',
     'explorer',
 )
 
@@ -86,6 +88,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+# In production mode, this folder needs to be create at user `nobody` can access
+# and then link to here first, like /var/hosts/gtfs/static_root
+STATIC_ROOT = './static_root'
 
 # Heystack for search, Whoosh is a index engine write by python as a backend
 
@@ -95,3 +100,11 @@ HAYSTACK_CONNECTIONS = {
         'PATH': os.path.join(os.path.dirname(__file__), 'whoosh_index'),
     },
 }
+
+# add compressor
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    # above are default settings
+    'compressor.finders.CompressorFinder',
+)
